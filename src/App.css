@@ -56,6 +56,9 @@ input:focus {
     color: white;
     background: rgba(0,0,0,0);
 }
+.todo-text {
+    text-transform: capitalize;
+}
 .todo-text:hover {
     cursor: pointer;
     color: rgb(150, 150, 150) !important;
