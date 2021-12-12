@@ -125,14 +125,16 @@ input:focus {
     flex-wrap: wrap;
     height: 65%;
 }
-#signin-form {
+#signin-form, #signup-form {
     width: 100%;
 }
-#signin-form input {
+#signin-form input, #signup-form input {
     display: block;
     margin-left: auto;
     margin-right: auto;
     font-size: .6em;
+    margin-top: 25px;
+    margin-bottom: 25px;
 }
 .m-bot {
     margin-bottom: 20px;

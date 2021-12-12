@@ -127,7 +127,7 @@ function App() {
             setUser('');
             setPass('');
             document.getElementById("signin-form").reset();
-            alert("Invallid credentials...");
+            alert("Invalid credentials");
         }
     }
 
@@ -140,38 +140,48 @@ function App() {
     const signUp = async (e) => {
         e.preventDefault();
 
-        let dbUsers = await getDocs(collection(db, "users"));
-        let localUsers = []
-        dbUsers.forEach((dbUser) => {
-            localUsers.push({
-                username: dbUser.data().username,
-                password: dbUser.data().password
+        if(user === "" || pass === "") {
+            setUser('');
+            setPass('');
+            document.getElementById("signup-form").reset();
+            alert("Invalid credentials");
+        } else {
+            let dbUsers = await getDocs(collection(db, "users"));
+            let localUsers = []
+            dbUsers.forEach((dbUser) => {
+                localUsers.push({
+                    username: dbUser.data().username,
+                    password: dbUser.data().password
+                })
             })
-        })
-
-        let passed = false;
-
-        for (let i = 0; i < localUsers.length; i++) {
-            const localUser = localUsers[i];
-            if (localUser.username === user) {
-                passed = false;
-                alert("user already exists");
-                break;
-            } else {
-                passed = true;
+    
+            let passed = false;
+    
+            for (let i = 0; i < localUsers.length; i++) {
+                const localUser = localUsers[i];
+                if (localUser.username === user) {
+                    passed = false;
+                    setUser('');
+                    setPass('');
+                    document.getElementById("signup-form").reset();
+                    alert("User already exists");
+                    break;
+                } else {
+                    passed = true;
+                }
+    
             }
-
-        }
-
-        if(passed) {
-            let userRef = collection(db, "users");
-                await addDoc(userRef, {
-                    username: user,
-                    password: pass
-                });
-                setSignup(false);
-                setLogged(true);
-        }
+    
+            if(passed) {
+                let userRef = collection(db, "users");
+                    await addDoc(userRef, {
+                        username: user,
+                        password: pass
+                    });
+                    setSignup(false);
+                    setLogged(true);
+            }
+        }        
         
     }
 
