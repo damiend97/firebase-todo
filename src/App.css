@@ -95,3 +95,53 @@ input:focus {
     cursor: pointer;
     background: grey;
 }
+
+.center-container {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.flex-center {
+    width: 65%;
+    height: 65%;
+    border:rgb(150, 150, 150);
+    padding: 50px;
+    font-size: 2em;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    /* text-shadow: 3px 3px 5px red, -3px -3px 5px blue; */
+    text-shadow: 3px 3px 5px black;
+    font-style: italic;
+}
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    height: 65%;
+}
+#signin-form {
+    width: 100%;
+}
+#signin-form input {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: .6em;
+}
+.m-bot {
+    margin-bottom: 20px;
+}
+.signout-but {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    font-size: 25px;
+    font-style: italic;
+    cursor: pointer;
+}

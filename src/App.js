@@ -1,13 +1,17 @@
 import './App.css';
-import { collection, addDoc, doc, deleteDoc, query, onSnapshot, orderBy, updateDoc, getDoc } from "firebase/firestore"; 
+import { collection, addDoc, doc, deleteDoc, query, onSnapshot, orderBy, updateDoc, getDoc, where, getDocs } from "firebase/firestore"; 
 import { db } from './firebase-config';
 import { useEffect, useState } from 'react';
 
+import SignIn from './SignIn';
+import SignUp from './SignUp';
+
 class Todo {
-    constructor (text, completed, timestamp) {
+    constructor (text, completed, timestamp, user) {
         this.text = text;
         this.completed = completed;
         this.timestamp = timestamp;
+        this.user = user;
     }
 }
 
@@ -16,33 +20,38 @@ const todoConverter = {
         return {
             text: todo.text,
             completed: todo.completed,
-            timestamp: todo.timestamp
+            timestamp: todo.timestamp,
+            user: todo.user
             };
     },
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);
-        return new Todo(data.text, data.completed, data.timestamp);
+        return new Todo(data.text, data.completed, data.timestamp, data.user);
     }
 };
 
 function App() {
     const [todoText, setTodoText] = useState('');
     const [localTodos, setLocalTodos] = useState([]);
+    const [logged, setLogged] = useState(false);
+    const [signup, setSignup] = useState(false);
+    const [user, setUser] = useState('');
+    const [pass, setPass] = useState('');
 
     useEffect(()=> {
-        const q = query(collection(db, "todos"),  orderBy("timestamp"));
-    
+        const q = query(collection(db, "todos"), orderBy("timestamp"), where("user", "==", user));
+        
         const unsubscribe = onSnapshot(q, (snapshot) => {
             // adds the document id to the local todo items
             setLocalTodos(snapshot.docs.map(doc => ({...doc.data(), id: doc.id})))
         });
         
         return () => unsubscribe()
-     }, [])
+     }, [user])
 
     const addTodo = async (todoText) => {
         const addRef = collection(db, "todos").withConverter(todoConverter);
-        await addDoc(addRef, new Todo(todoText, false, + new Date()));
+        await addDoc(addRef, new Todo(todoText, false, + new Date(), user));
         window.scroll(0, document.body.scrollHeight);
     }
 
@@ -88,9 +97,95 @@ function App() {
         }
     }
 
+    // ######################################################
+
+    const signIn = async (e) => {
+        e.preventDefault();
+        let dbUsers = await getDocs(collection(db, "users"));
+        let localUsers = []
+        dbUsers.forEach((dbUser) => {
+            localUsers.push({
+                username: dbUser.data().username,
+                password: dbUser.data().password
+            })
+        })
+        
+        let passed = false;
+        for (let i = 0; i < localUsers.length; i++) {
+            const localUser = localUsers[i];
+            if(localUser.username === user && localUser.password === pass) {
+                setLogged(true);
+                setPass('');
+                passed = true;
+                break;
+            } else {
+                passed = false;
+            }
+        }
+
+        if(!passed) {
+            setUser('');
+            setPass('');
+            document.getElementById("signin-form").reset();
+            alert("Invallid credentials...");
+        }
+    }
+
+    const signOut = () => {
+        setUser('');
+        setPass('');
+        setLogged(false);
+    }
+
+    const signUp = async (e) => {
+        e.preventDefault();
+
+        let dbUsers = await getDocs(collection(db, "users"));
+        let localUsers = []
+        dbUsers.forEach((dbUser) => {
+            localUsers.push({
+                username: dbUser.data().username,
+                password: dbUser.data().password
+            })
+        })
+
+        let passed = false;
+
+        for (let i = 0; i < localUsers.length; i++) {
+            const localUser = localUsers[i];
+            if (localUser.username === user) {
+                passed = false;
+                alert("user already exists");
+                break;
+            } else {
+                passed = true;
+            }
+
+        }
+
+        if(passed) {
+            let userRef = collection(db, "users");
+                await addDoc(userRef, {
+                    username: user,
+                    password: pass
+                });
+                setSignup(false);
+                setLogged(true);
+        }
+        
+    }
+
     return (
         <div className="App">
+            {
+            !logged ?
+                !signup ? 
+                    <SignIn setSignup={setSignup} signIn={signIn} setUser={setUser} setPass={setPass} />
+                :
+                    <SignUp setSignup={setSignup} signUp={signUp} setUser={setUser} setPass={setPass} />
+            : 
             <div id="cc" className="content-container">
+                <div className="signout-but" onClick={() => signOut()}>Logout</div>
                 <br />
 
                 {
@@ -124,6 +219,7 @@ function App() {
                 </form>
                 <br />
             </div>
+            }
         </div>
     )
 }
