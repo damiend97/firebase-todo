@@ -150,3 +150,6 @@ input:focus {
 .signup-link, .signin-link {
     cursor: pointer;
 }
+input[type="submit"] {
+    cursor: pointer;
+}
