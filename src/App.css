@@ -147,3 +147,6 @@ input:focus {
     font-style: italic;
     cursor: pointer;
 }
+.signup-link, .signin-link {
+    cursor: pointer;
+}
